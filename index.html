@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fluttr – Butterfly Catalogue</title>
+<title>Fluttr - Butterfly Catalogue</title>
 
 <style>
 * { box-sizing: border-box; }
@@ -27,6 +27,12 @@ header {
 .logo {
   font-weight: bold;
   font-size: 22px;
+}
+
+.animation {
+    padding-top: 5px;
+    max-width: 22px;
+    max-height: 25px;
 }
 
 nav a {
@@ -78,8 +84,9 @@ nav a {
 
 /* CAROUSEL SECTION */
 .carousel-section {
-  padding: 60px 20px;
+  padding: 20px 20px;
   text-align: center;
+  justify-items: center;
 }
 
 .carousel {
@@ -109,6 +116,10 @@ nav a {
   border: none;
   cursor: pointer;
   border-radius: 4px;
+}
+
+.card button:hover {
+  opacity: 0.9;
 }
 
 .card img {
@@ -145,6 +156,11 @@ nav a {
   background: #303943;
   color: white;
   border: none;
+  border-radius: 4px;
+}
+
+.newsletter button:hover {
+  opacity: 0.9;
 }
 
 /* FOOTER */
@@ -190,7 +206,7 @@ footer {
 <body>
 
 <header>
-  <div class="logo">FLUTTR</div>
+  <div class="logo"><img class="animation" src="https://upload.wikimedia.org/wikipedia/commons/6/6c/Butterfly_o_Mariposa.gif">FLUTTR</div>
   <nav>
     <a href="#">Search</a>
     <a href="#">Submit</a>
@@ -201,7 +217,7 @@ footer {
 </header>
 
 <section class="hero">
-  <h2>Discover butterflies.</h2>
+  <h3>Discover butterflies.</h3>
   <h1>FLUTTR</h1>
   <p>A searchable catalogue of butterfly species, habitats and characteristics.</p>
   <button class="cta-btn">Join the family!</button>
@@ -233,7 +249,7 @@ footer {
   <h2>Want to keep up with us?</h2>
   <p>
     We are passionate about butterflies, and so are you. If you want to keep
-    up with the latest butterfly news from Fluttr, why not subscribe to our
+    up with the latest butterfly news from FLUTTR, why not subscribe to our
     newsletter? Receive weekly updates about our favourite insects by
     entering your email below!
   </p>
@@ -243,13 +259,15 @@ footer {
 
 <footer>
   <div class="footer-links">
-    <strong>FLUTTR</strong>
     <a href="#">About us</a>
     <a href="#">Contact us</a>
     <a href="#">Sign in</a>
     <a href="#">Submitting guide</a>
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Service</a>
   </div>
-  <p>2026 FLUTTR. All rights reserved. Privacy Policy | Terms of Service</p>
+  <br>
+  <p>©2026 FLUTTR. All rights reserved.</p>
 </footer>
 
 </body>
