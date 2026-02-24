@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Butterfly Catalogue PWA - Project Setup Script
+# This script automatically creates the required
+# directories and core files for the project.
+
+echo "Creating project structure for Butterfly PWA..."
+
+# Create main directories
+mkdir -p public/css
+mkdir -p public/js
+mkdir -p server
+mkdir -p database
+mkdir -p scripts
+
+# Create core files
+touch index.html
+touch manifest.json
+touch README.txt
+
+echo "Project structure created successfully!"
