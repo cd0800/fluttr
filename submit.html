@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fluttr - Butterfly Catalogue</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<header>
+  <div class="logo"><img class="animation" src="https://upload.wikimedia.org/wikipedia/commons/6/6c/Butterfly_o_Mariposa.gif">FLUTTR</div>
+  <nav>
+    <a href="#">Search</a>
+    <a href="#">Submit</a>
+    <a href="#">About</a>
+    <a href="#">Accessibility</a>
+    <a href="#" class="signin">Sign in</a>
+  </nav>
+</header>
+
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+* {box-sizing: border-box;}
+
+input[type=text], select, textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  margin-top: 6px;
+  margin-bottom: 16px;
+  resize: vertical;
+}
+
+input[type=submit] {
+  background-color: #04AA6D;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+input[type=submit]:hover {
+  background-color: #303943;
+}
+
+.container {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+</style>
+</head>
+
+<h3>Request to add a butterfly</h3>
+
+<div class="container">
+  <form action="/action_page.php">
+    <label for="fname">First Name</label>
+    <input type="text" id="fname" name="firstname" placeholder="Your name">
+
+    <label for="subject">Subject</label>
+    <textarea id="subject" name="subject" placeholder="What butterfly needs to be added?" style="height:200px"></textarea>
+
+    <input type="submit" value="Submit">
+  </form>
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="#">About us</a>
+    <a href="#">Contact us</a>
+    <a href="#">Sign in</a>
+    <a href="#">Submitting guide</a>
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Service</a>
+  </div>
+  <br>
+  <p>©2026 FLUTTR. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
