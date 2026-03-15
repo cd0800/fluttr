@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fluttr - Butterfly Catalogue</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#303943">
+</head>
+
+<body>
+
+<header>
+  <div class="logo"><a href="index.html" aria-label="Fluttr home"><img class="animation" src="https://upload.wikimedia.org/wikipedia/commons/6/6c/Butterfly_o_Mariposa.gif" alt="Fluttr logo"><span>FLUTTR</span></a></div>
+  <nav>
+    <a href="search.html">Search</a>
+    <a href="submit.html">Submit</a>
+    <a href="about.html">About</a>
+    <a href="accessibility.html">Accessibility</a>
+    <a href="signin.html" class="signin">Sign in</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <h3>Discover butterflies.</h3>
+  <h1>FLUTTR</h1>
+  <p>A searchable catalogue of butterfly species, habitats and characteristics.</p>
+  <button class="cta-btn">Join the family!</button>
+</section>
+
+<section class="carousel-section">
+  <div class="carousel">
+    <div class="card">
+      <h3>Ulysses</h3>
+      <img src="images/ulysses.jpg" alt="Ulysses Butterfly">
+      <button>Read more</button>
+    </div>
+
+    <div class="card">
+      <h3>Cairns Birdwing</h3>
+      <img src="images/cairns-birdwing.jpg" alt="Cairns Birdwing">
+      <button>Read more</button>
+    </div>
+
+    <div class="card">
+      <h3>Blue Tiger</h3>
+      <img src="images/blue-tiger.jpg" alt="Blue Tiger Butterfly">
+      <button>Read more</button>
+    </div>
+  </div>
+</section>
+
+<section class="newsletter">
+  <h2>Want to keep up with us?</h2>
+  <p>
+    We are passionate about butterflies, and so are you. If you want to keep
+    up with the latest butterfly news from FLUTTR, why not subscribe to our
+    newsletter? Receive weekly updates about our favourite insects by
+    entering your email below!
+  </p>
+  <input type="email" placeholder="Your email">
+  <button>Subscribe</button>
+</section>
+
+<footer>
+  <div class="footer-links">
+    <a href="#">About us</a>
+    <a href="#">Contact us</a>
+    <a href="#">Sign in</a>
+    <a href="#">Submitting guide</a>
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Service</a>
+  </div>
+  <br>
+  <p>©2026 FLUTTR. All rights reserved.</p>
+</footer>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/service-worker.js");
+  });
+}
+</script>
+
+</body>
+</html>
+

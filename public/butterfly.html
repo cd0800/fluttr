@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fluttr - Butterfly Details</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#303943">
+</head>
+
+<body>
+
+<header>
+  <div class="logo"><a href="index.html" aria-label="Fluttr home"><img class="animation" src="https://upload.wikimedia.org/wikipedia/commons/6/6c/Butterfly_o_Mariposa.gif" alt="Fluttr logo"><span>FLUTTR</span></a></div>
+  <nav>
+    <a href="search.html">Search</a>
+    <a href="submit.html">Submit</a>
+    <a href="about.html">About</a>
+    <a href="accessibility.html">Accessibility</a>
+    <a href="signin.html" class="signin">Sign in</a>
+  </nav>
+</header>
+
+<main class="detail-page">
+  <a class="back-link" href="search.html">&larr; Back to search</a>
+
+  <section class="detail-card">
+    <img id="detailImage" src="/images/ulysses.jpg" alt="Butterfly">
+    <div class="detail-info">
+      <h1 id="detailName">Butterfly</h1>
+      <p id="detailScientific"></p>
+      <p id="detailFamily"></p>
+      <div class="detail-grid">
+        <div><strong>Tribe:</strong> <span id="detailTribe"></span></div>
+        <div><strong>Genus:</strong> <span id="detailGenus"></span></div>
+        <div><strong>Location:</strong> <span id="detailLocation"></span></div>
+        <div><strong>Size:</strong> <span id="detailSize"></span></div>
+        <div><strong>Food plant:</strong> <span id="detailFoodPlant"></span></div>
+        <div><strong>Colouring:</strong> <span id="detailColouring"></span></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-links">
+    <a href="#">About us</a>
+    <a href="#">Contact us</a>
+    <a href="#">Sign in</a>
+    <a href="#">Submitting guide</a>
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Service</a>
+  </div>
+  <br>
+  <p>Â©2026 FLUTTR. All rights reserved.</p>
+</footer>
+
+<script src="butterfly.js"></script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/service-worker.js");
+  });
+}
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,20 @@
+{
+  "name": "FLUTTR Butterfly Catalogue",
+  "short_name": "FLUTTR",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#f7f4ef",
+  "theme_color": "#303943",
+  "icons": [
+    {
+      "src": "/images/ulysses.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/images/blue-tiger.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    }
+  ]
+}

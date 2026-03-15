@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fluttr - Butterfly Catalogue</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#303943">
+</head>
+
+<body>
+
+<header>
+  <div class="logo"><a href="index.html" aria-label="Fluttr home"><img class="animation" src="https://upload.wikimedia.org/wikipedia/commons/6/6c/Butterfly_o_Mariposa.gif" alt="Fluttr logo"><span>FLUTTR</span></a></div>
+  <nav>
+    <a href="search.html">Search</a>
+    <a href="submit.html">Submit</a>
+    <a href="about.html">About</a>
+    <a href="accessibility.html">Accessibility</a>
+    <a href="signin.html" class="signin">Sign in</a>
+  </nav>
+</header>
+
+<main class="search-page">
+  <section class="search-hero">
+    <h1>Search Butterflies</h1>
+    <p>Explore our database of Australian butterfly species</p>
+  </section>
+
+  <section class="search-layout">
+    <aside class="filters">
+      <h2>Filters</h2>
+      <input type="text" id="searchBox" placeholder="Search butterflies...">
+      <label for="familyFilter">Family</label>
+      <select id="familyFilter">
+        <option value="">All</option>
+        <option value="Papilionidae">Papilionidae</option>
+        <option value="Nymphalidae">Nymphalidae</option>
+      </select>
+
+      <label for="tribeFilter">Tribe</label>
+      <select id="tribeFilter">
+        <option value="">All</option>
+        <option value="Papilionini">Papilionini</option>
+        <option value="Troidini">Troidini</option>
+        <option value="Danaini">Danaini</option>
+      </select>
+
+      <label for="genusFilter">Genus</label>
+      <select id="genusFilter">
+        <option value="">All</option>
+        <option value="Papilio">Papilio</option>
+        <option value="Ornithoptera">Ornithoptera</option>
+        <option value="Tirumala">Tirumala</option>
+      </select>
+
+      <label for="locationFilter">Location</label>
+      <select id="locationFilter">
+        <option value="">All</option>
+        <option value="Queensland (Wet Tropics)">Queensland (Wet Tropics)</option>
+        <option value="Northern Australia">Northern Australia</option>
+      </select>
+
+      <label for="sizeFilter">Size</label>
+      <select id="sizeFilter">
+        <option value="">All</option>
+        <option value="Large">Large</option>
+        <option value="Very large">Very large</option>
+        <option value="Medium">Medium</option>
+      </select>
+
+      <label for="foodPlantFilter">Food plant</label>
+      <select id="foodPlantFilter">
+        <option value="">All</option>
+        <option value="Citrus species">Citrus species</option>
+        <option value="Pararistolochia praevenosa">Pararistolochia praevenosa</option>
+        <option value="Tylophora species">Tylophora species</option>
+      </select>
+
+      <label for="colouringFilter">Colouring</label>
+      <select id="colouringFilter">
+        <option value="">All</option>
+        <option value="Electric blue">Electric blue</option>
+        <option value="Green and black">Green and black</option>
+        <option value="Blue and black">Blue and black</option>
+      </select>
+    </aside>
+
+    <section>
+      <div id="results" class="results-grid"></div>
+    </section>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-links">
+    <a href="#">About us</a>
+    <a href="#">Contact us</a>
+    <a href="#">Sign in</a>
+    <a href="#">Submitting guide</a>
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Service</a>
+  </div>
+  <br>
+  <p>©2026 FLUTTR. All rights reserved.</p>
+</footer>
+
+<script src="search.js"></script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/service-worker.js");
+  });
+}
+</script>
+
+</body>
+</html>
+

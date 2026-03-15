@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fluttr - Sign in</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#303943">
+</head>
+
+<body>
+
+<header>
+  <div class="logo"><a href="index.html" aria-label="Fluttr home"><img class="animation" src="https://upload.wikimedia.org/wikipedia/commons/6/6c/Butterfly_o_Mariposa.gif" alt="Fluttr logo"><span>FLUTTR</span></a></div>
+  <nav>
+    <a href="search.html">Search</a>
+    <a href="submit.html">Submit</a>
+    <a href="about.html">About</a>
+    <a href="accessibility.html">Accessibility</a>
+    <a href="signin.html" class="signin">Sign in</a>
+  </nav>
+</header>
+
+<main class="auth-page">
+  <section class="auth-card">
+    <h1>Sign in</h1>
+    <p class="auth-subtitle">Welcome back to Fluttr.</p>
+
+    <form id="signinForm" class="auth-form">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" placeholder="you@fluttr.com" required>
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="Your password" required>
+
+      <button type="submit" class="cta-btn auth-btn">Sign in</button>
+      <p id="signinError" class="auth-error" role="alert" aria-live="polite"></p>
+    </form>
+
+    <div class="auth-hint">
+      <p>Demo account:</p>
+      <p><strong>Email:</strong> demo@fluttr.com</p>
+      <p><strong>Password:</strong> butterfly</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-links">
+    <a href="#">About us</a>
+    <a href="#">Contact us</a>
+    <a href="#">Sign in</a>
+    <a href="#">Submitting guide</a>
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Service</a>
+  </div>
+  <br>
+  <p>©2026 FLUTTR. All rights reserved.</p>
+</footer>
+
+<script src="signin.js"></script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/service-worker.js");
+  });
+}
+</script>
+
+</body>
+</html>

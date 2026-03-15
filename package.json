@@ -1,0 +1,11 @@
+{
+    "scripts": {
+        "start": "node server.js",
+        "test": "jest"
+    },
+    "dependencies": {
+        "express": "^4.19.2",
+        "serve-static": "^2.2.1",
+        "sqlite3": "^6.0.1"
+    }
+}

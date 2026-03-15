@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fluttr - Butterfly Catalogue</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#303943">
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+* {box-sizing: border-box;}
+
+input[type=text], select, textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  margin-top: 6px;
+  margin-bottom: 16px;
+  resize: vertical;
+}
+
+input[type=submit] {
+  background-color: #303943;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+input[type=submit]:hover {
+  background-color: #303943;
+}
+
+.container {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding-left: 5%;
+  padding-right: 5%;
+  padding-top: 2%;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo"><a href="index.html" aria-label="Fluttr home"><img class="animation" src="https://upload.wikimedia.org/wikipedia/commons/6/6c/Butterfly_o_Mariposa.gif" alt="Fluttr logo"><span>FLUTTR</span></a></div>
+  <nav>
+    <a href="search.html">Search</a>
+    <a href="submit.html">Submit</a>
+    <a href="about.html">About</a>
+    <a href="accessibility.html">Accessibility</a>
+    <a href="signin.html" class="signin">Sign in</a>
+  </nav>
+</header>
+
+<h3 style="padding-left: 5%;">Request to add a butterfly</h3>
+
+<div class="container">
+  <form action="/action_page.php">
+    <label for="fname">First Name</label>
+    <input type="text" id="fname" name="firstname" placeholder="Your name">
+
+    <label for="subject">Subject</label>
+    <textarea id="subject" name="subject" placeholder="What butterfly needs to be added?" style="height:200px"></textarea>
+
+    <input type="submit" value="Submit">
+  </form>
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="#">About us</a>
+    <a href="#">Contact us</a>
+    <a href="#">Sign in</a>
+    <a href="#">Submitting guide</a>
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Service</a>
+  </div>
+  <br>
+  <p>©2026 FLUTTR. All rights reserved.</p>
+</footer>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/service-worker.js");
+  });
+}
+</script>
+
+</body>
+</html>
+
