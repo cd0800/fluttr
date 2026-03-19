@@ -19,18 +19,50 @@
     <a href="about.html">About</a>
     <a href="accessibility.html">Accessibility</a>
     <a href="signin.html" class="signin" id="signinLink">Sign in</a>
-    <span class="user-greeting" id="userGreeting" aria-live="polite"></span>
+    
     <button type="button" class="link-button" id="signoutBtn">Sign out</button>
   </nav>
 </header>
 
-<h3 style="text-align: center;">About us</h3>
+<!-- Page content -->
 
-<p style="text-align: center;">We are a progressive web app that lets you search a database of Australian butterflies. <br> 
-  Butterflies are our passion. We love butterflies. 
-  <br>We are butterflies. 
-  <br>Join butterflies. 
-  <br> We belive butterflies are a vital indicator of changes in our climate, and tracking them is a clear indicator of biodiversity</p>
+<main class="about-page">
+  <section class="about-hero">
+    <div>
+      <h1>About Us. We are butterflies</h1>
+      <p class="about-lede">
+        FLUTTR is a progressive web app for exploring Australian butterflies by habitat,
+        characteristics, and location. We believe butterflies are vital indicators of climate
+        change and biodiversity health.
+      </p>
+    </div>
+    <div class="about-image">
+      <img src="images/Akuma.webp" alt="Akuma butterfly" loading="lazy">
+    </div>
+  </section>
+
+  <section class="about-grid">
+    <article class="about-card">
+      <h3>Our mission</h3>
+      <p>
+        Make butterfly data accessible to students, citizen scientists, and potential members.
+        The more we learn, the more people we can convert.
+      </p>
+    </article>
+    <article class="about-card">
+      <h3>What we track</h3>
+      <p>
+        Species names, habitats, size, food plants, and colour patterns.
+      </p>
+    </article>
+    <article class="about-card">
+      <h3>Join the community</h3>
+      <p>
+        Join us. Join butterflies. Join the family. We are all butterflies, and we are all family. Be butterflies.
+      </p>
+    </article>
+  </section>
+</main>
 
 <footer>
   <div class="footer-links">
@@ -56,6 +88,8 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
+
 
 
 

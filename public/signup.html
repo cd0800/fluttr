@@ -19,10 +19,12 @@
     <a href="about.html">About</a>
     <a href="accessibility.html">Accessibility</a>
     <a href="signin.html" class="signin" id="signinLink">Sign in</a>
-    <span class="user-greeting" id="userGreeting" aria-live="polite"></span>
+    
     <button type="button" class="link-button" id="signoutBtn">Sign out</button>
   </nav>
 </header>
+
+<!-- Page content -->
 
 <main class="auth-page">
   <section class="auth-card">
@@ -43,17 +45,6 @@
       <label for="confirm">Confirm password</label>
       <input type="password" id="confirm" name="confirm" placeholder="Re-enter your password" required>
       <p id="confirmFeedback" class="auth-helper" aria-live="polite"></p>
-
-      <div class="auth-hint">
-        <p>Password must include:</p>
-        <ul class="rules-list" id="passwordRules">
-          <li data-rule="length">At least 8 characters</li>
-          <li data-rule="lowercase">A lowercase letter</li>
-          <li data-rule="uppercase">An uppercase letter</li>
-          <li data-rule="number">A number</li>
-          <li data-rule="symbol">A symbol</li>
-        </ul>
-      </div>
 
       <button type="submit" class="cta-btn auth-btn">Create account</button>
       <p id="signupError" class="auth-error" role="alert" aria-live="polite"></p>
@@ -88,6 +79,8 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
+
 
 
 

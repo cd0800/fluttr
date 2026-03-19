@@ -1,10 +1,10 @@
 const signinLink = document.getElementById("signinLink");
-const userGreeting = document.getElementById("userGreeting");
 const signoutBtn = document.getElementById("signoutBtn");
 const heroGreeting = document.getElementById("heroGreeting");
 
+// Fetch the current session user and update the header and hero.
 async function loadUser() {
-  if (!signinLink || !userGreeting || !signoutBtn) {
+  if (!signinLink || !signoutBtn) {
     return;
   }
 
@@ -13,19 +13,12 @@ async function loadUser() {
     const data = await response.json();
 
     if (data.user) {
-      if (userGreeting) {
-        userGreeting.textContent = `Hello, ${data.user.name}!`;
-        userGreeting.style.display = "inline-block";
-      }
       if (heroGreeting) {
         heroGreeting.textContent = `Hello, ${data.user.name}!`;
       }
       signoutBtn.style.display = "inline-block";
       signinLink.style.display = "none";
     } else {
-      if (userGreeting) {
-        userGreeting.style.display = "none";
-      }
       signoutBtn.style.display = "none";
       signinLink.style.display = "inline-block";
       if (heroGreeting) {
@@ -33,9 +26,6 @@ async function loadUser() {
       }
     }
   } catch (error) {
-    if (userGreeting) {
-      userGreeting.style.display = "none";
-    }
     signoutBtn.style.display = "none";
     if (signinLink) {
       signinLink.style.display = "inline-block";
@@ -46,6 +36,7 @@ async function loadUser() {
   }
 }
 
+// Sign out clears the session and returns to the homepage.
 if (signoutBtn) {
   signoutBtn.addEventListener("click", async () => {
     try {

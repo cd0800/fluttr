@@ -7,5 +7,9 @@
         "express": "^4.19.2",
         "serve-static": "^2.2.1",
         "sqlite3": "^6.0.1"
+    },
+    "devDependencies": {
+        "jest": "^29.7.0",
+        "supertest": "^7.0.0"
     }
 }

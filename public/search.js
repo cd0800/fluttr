@@ -9,6 +9,7 @@ const sizeFilter = document.getElementById("sizeFilter");
 const foodPlantFilter = document.getElementById("foodPlantFilter");
 const colouringFilter = document.getElementById("colouringFilter");
 
+// Map filter keys to their checkbox containers.
 const filterControls = [
     { key: "family", el: familyFilter },
     { key: "tribe", el: tribeFilter },
@@ -22,8 +23,10 @@ const filterControls = [
 searchBox.addEventListener("keyup", searchButterflies);
 filterControls.forEach(({ el }) => el.addEventListener("change", searchButterflies));
 
+// Load filter options before the first search.
 loadFilters();
 
+// Fetch available filter values from the API.
 async function loadFilters() {
     const response = await fetch("/api/filters");
     const data = await response.json();
@@ -50,6 +53,7 @@ async function loadFilters() {
     searchButterflies();
 }
 
+// Handle select all and clear buttons in each filter group.
 filtersPanel.addEventListener("click", (event) => {
     const button = event.target.closest("button[data-action]");
     if (!button) return;
@@ -68,6 +72,7 @@ filtersPanel.addEventListener("click", (event) => {
     searchButterflies();
 });
 
+// Build query params and request matching butterflies.
 async function searchButterflies(){
 
     const query = searchBox.value;
@@ -86,6 +91,7 @@ async function searchButterflies(){
     displayResults(butterflies);
 }
 
+// Render search results into cards.
 function displayResults(butterflies){
 
     results.innerHTML = "";

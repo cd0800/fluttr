@@ -1,10 +1,12 @@
 const form = document.getElementById("signinForm");
 const errorEl = document.getElementById("signinError");
 
+// Basic email format check before sending to the server.
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+// Submit the sign in form and start a session.
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   errorEl.textContent = "";

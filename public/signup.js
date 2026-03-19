@@ -5,20 +5,13 @@ const passwordInput = document.getElementById("password");
 const confirmInput = document.getElementById("confirm");
 const emailFeedback = document.getElementById("emailFeedback");
 const confirmFeedback = document.getElementById("confirmFeedback");
-const rulesList = document.getElementById("passwordRules");
 
-const rules = {
-  length: (value) => value.length >= 8,
-  lowercase: (value) => /[a-z]/.test(value),
-  uppercase: (value) => /[A-Z]/.test(value),
-  number: (value) => /[0-9]/.test(value),
-  symbol: (value) => /[^A-Za-z0-9]/.test(value)
-};
-
+// Basic email format check before sending to the server.
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+// Inline email feedback to guide the user.
 function updateEmailFeedback() {
   const email = emailInput.value.trim();
   if (!email) {
@@ -33,15 +26,7 @@ function updateEmailFeedback() {
   return true;
 }
 
-function updatePasswordRules() {
-  const value = passwordInput.value;
-  Object.keys(rules).forEach((ruleKey) => {
-    const item = rulesList.querySelector(`[data-rule="${ruleKey}"]`);
-    if (!item) return;
-    item.classList.toggle("valid", rules[ruleKey](value));
-  });
-}
-
+// Inline password match feedback.
 function updateConfirmFeedback() {
   const password = passwordInput.value;
   const confirm = confirmInput.value;
@@ -58,14 +43,10 @@ function updateConfirmFeedback() {
 }
 
 emailInput.addEventListener("input", updateEmailFeedback);
-passwordInput.addEventListener("input", () => {
-  updatePasswordRules();
-  updateConfirmFeedback();
-});
+passwordInput.addEventListener("input", updateConfirmFeedback);
 confirmInput.addEventListener("input", updateConfirmFeedback);
 
-updatePasswordRules();
-
+// Submit the form to create a new account.
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   errorEl.textContent = "";
@@ -76,9 +57,8 @@ form.addEventListener("submit", async (event) => {
 
   const emailOk = updateEmailFeedback();
   const confirmOk = updateConfirmFeedback();
-  const passwordOk = Object.values(rules).every((rule) => rule(password));
 
-  if (!emailOk || !confirmOk || !passwordOk) {
+  if (!emailOk || !confirmOk) {
     errorEl.textContent = "Please fix the highlighted fields.";
     return;
   }

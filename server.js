@@ -1,19 +1,22 @@
 const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 const crypto = require("crypto");
+const { isValidEmail, sanitizeName } = require("./server/validation");
 const app = express();
 
 app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Demo account for quick access without sign up.
 const DEMO_USER = {
     email: "demo@fluttr.com",
     password: "butterfly",
     name: "Demo User"
 };
 
-const db = new sqlite3.Database("./butterflies.db");
+const DB_PATH = process.env.FLUTTR_DB_PATH || "./butterflies.db";
+const db = new sqlite3.Database(DB_PATH);
 const NULL_FILTER_VALUE = "__missing__";
 const NULL_FILTER_LABEL = "Not specified";
 const COLOUR_VALUES = ["Black", "White", "Green", "Blue", "Yellow", "Red"];
@@ -23,6 +26,7 @@ const PASSWORD_DIGEST = "sha256";
 const SESSION_COOKIE = "fluttr_session";
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7;
 
+// Initialize tables and seed butterfly data on startup.
 db.serialize(() => {
     db.run(`
         CREATE TABLE IF NOT EXISTS butterflies (
@@ -846,6 +850,7 @@ db.serialize(() => {
     });
 });
 
+app.locals.db = db;
 function getDistinctValues(column) {
     return new Promise((resolve, reject) => {
         db.all(
@@ -1038,6 +1043,7 @@ app.post("/api/signin", (req, res) => {
         return;
     }
 
+    // Look up the user and verify the password hash.
     db.get(
         `SELECT id, name, email, password_hash, password_salt FROM users WHERE email = ?`,
         [email],
@@ -1086,12 +1092,12 @@ app.post("/api/signup", (req, res) => {
         return;
     }
 
-    const passwordIssues = getPasswordIssues(password);
-    if (passwordIssues.length) {
-        res.status(400).json({ error: passwordIssues[0] });
+    if (password.length < 1) {
+        res.status(400).json({ error: "Password is required." });
         return;
     }
 
+    // Ensure the email is not already registered.
     db.get(`SELECT id FROM users WHERE email = ?`, [email], (err, row) => {
         if (err) {
             res.status(500).json({ error: "Database error." });
@@ -1174,38 +1180,7 @@ function timingSafeEqual(a, b) {
     return crypto.timingSafeEqual(aBuf, bBuf);
 }
 
-function sanitizeName(value) {
-    return String(value || "")
-        .replace(/[<>]/g, "")
-        .replace(/\s+/g, " ")
-        .trim()
-        .slice(0, 80);
-}
-
-function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function getPasswordIssues(password) {
-    const issues = [];
-    if (password.length < 8) {
-        issues.push("Password must be at least 8 characters.");
-    }
-    if (!/[a-z]/.test(password)) {
-        issues.push("Password must include a lowercase letter.");
-    }
-    if (!/[A-Z]/.test(password)) {
-        issues.push("Password must include an uppercase letter.");
-    }
-    if (!/[0-9]/.test(password)) {
-        issues.push("Password must include a number.");
-    }
-    if (!/[^A-Za-z0-9]/.test(password)) {
-        issues.push("Password must include a symbol.");
-    }
-    return issues;
-}
-
+// Parse the session cookie from the request header.
 function getSessionToken(req) {
     const cookieHeader = req.headers.cookie || "";
     const cookies = cookieHeader.split(";").reduce((acc, item) => {
@@ -1217,6 +1192,7 @@ function getSessionToken(req) {
     return cookies[SESSION_COOKIE];
 }
 
+// Create a httpOnly session cookie.
 function setSessionCookie(res, token, expiresAt) {
     res.cookie(SESSION_COOKIE, token, {
         httpOnly: true,
@@ -1225,10 +1201,12 @@ function setSessionCookie(res, token, expiresAt) {
     });
 }
 
+// Clear the session cookie on sign out.
 function clearSessionCookie(res) {
     res.clearCookie(SESSION_COOKIE, { httpOnly: true, sameSite: "lax" });
 }
 
+// Insert a new session token for a user.
 function createSession(userId, callback) {
     const token = crypto.randomBytes(32).toString("hex");
     const now = new Date();
@@ -1247,6 +1225,7 @@ function createSession(userId, callback) {
     );
 }
 
+// Resolve the current user from the session cookie.
 function getSessionUser(req, callback) {
     const token = getSessionToken(req);
     if (!token) {
@@ -1283,6 +1262,10 @@ function getSessionUser(req, callback) {
     );
 }
 
-app.listen(3000,()=>{
-    console.log("Server running on http://localhost:3000");
-});
+if (require.main === module) {
+    app.listen(3000, () => {
+        console.log("Server running on http://localhost:3000");
+    });
+}
+
+module.exports = app;

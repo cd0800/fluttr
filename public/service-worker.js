@@ -1,4 +1,5 @@
-const CACHE_NAME = "fluttr-v11";
+// Cache version for app shell updates.
+const CACHE_NAME = "fluttr-v12";
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -11,6 +12,9 @@ const APP_SHELL = [
   "/submit.html",
   "/signin.html",
   "/signin.js",
+  "/signup.html",
+  "/signup.js",
+  "/auth.js",
   "/manifest.json",
   "/images/Ambrax swallowtail.jpg",
   "/images/Black-spotted white.jpg",
@@ -55,6 +59,7 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+// Use cache first for static assets.
 async function cacheFirst(request) {
   const cached = await caches.match(request);
   if (cached) return cached;
@@ -64,6 +69,7 @@ async function cacheFirst(request) {
   return fresh;
 }
 
+// Use network first for API requests with offline fallback.
 async function networkFirst(request) {
   try {
     const fresh = await fetch(request);

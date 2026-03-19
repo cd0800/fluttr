@@ -1,3 +1,4 @@
+// Read the butterfly id from the query string.
 const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
 
@@ -12,6 +13,7 @@ const detailSize = document.getElementById("detailSize");
 const detailFoodPlant = document.getElementById("detailFoodPlant");
 const detailColouring = document.getElementById("detailColouring");
 
+// Fetch a single butterfly and populate the detail view.
 async function loadButterfly() {
     if (!id) {
         detailName.textContent = "Butterfly not found";
