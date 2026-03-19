@@ -1,4 +1,4 @@
-const CACHE_NAME = "fluttr-v7";
+const CACHE_NAME = "fluttr-v11";
 const APP_SHELL = [
   "/",
   "/index.html",

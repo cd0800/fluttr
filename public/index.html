@@ -18,15 +18,17 @@
     <a href="submit.html">Submit</a>
     <a href="about.html">About</a>
     <a href="accessibility.html">Accessibility</a>
-    <a href="signin.html" class="signin">Sign in</a>
+    <a href="signin.html" class="signin" id="signinLink">Sign in</a>
+    <span class="user-greeting" id="userGreeting" aria-live="polite"></span>
+    <button type="button" class="link-button" id="signoutBtn">Sign out</button>
   </nav>
 </header>
 
 <section class="hero">
-  <h3>Discover butterflies.</h3>
+  <h3 id="heroGreeting">Discover butterflies.</h3>
   <h1>FLUTTR</h1>
   <p>A searchable catalogue of butterfly species, habitats and characteristics.</p>
-  <button class="cta-btn">Join the family!</button>
+  <a href="signup.html" class="cta-btn">Join the family!</a>
 </section>
 
 <section class="carousel-section">
@@ -34,19 +36,19 @@
     <div class="card">
       <h3>Ulysses</h3>
       <img src="images/ulysses.jpg" alt="Ulysses Butterfly">
-      <button>Read more</button>
+      <button onclick="window.location.href='butterfly.html?id=1'">Read more</button>
     </div>
 
     <div class="card">
       <h3>Cairns Birdwing</h3>
       <img src="images/cairns-birdwing.jpg" alt="Cairns Birdwing">
-      <button>Read more</button>
+      <button onclick="window.location.href='butterfly.html?id=2'">Read more</button>
     </div>
 
     <div class="card">
       <h3>Blue Tiger</h3>
       <img src="images/blue-tiger.jpg" alt="Blue Tiger Butterfly">
-      <button>Read more</button>
+      <button onclick="window.location.href='butterfly.html?id=3'">Read more</button>
     </div>
   </div>
 </section>
@@ -76,6 +78,7 @@
   <p>©2026 FLUTTR. All rights reserved.</p>
 </footer>
 
+<script src="auth.js"></script>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
@@ -86,4 +89,9 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
+
+
+
+
 

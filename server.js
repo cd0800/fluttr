@@ -1,5 +1,6 @@
 const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
+const crypto = require("crypto");
 const app = express();
 
 app.use(express.static("public"));
@@ -13,6 +14,14 @@ const DEMO_USER = {
 };
 
 const db = new sqlite3.Database("./butterflies.db");
+const NULL_FILTER_VALUE = "__missing__";
+const NULL_FILTER_LABEL = "Not specified";
+const COLOUR_VALUES = ["Black", "White", "Green", "Blue", "Yellow", "Red"];
+const PASSWORD_ITERATIONS = 120000;
+const PASSWORD_KEYLEN = 64;
+const PASSWORD_DIGEST = "sha256";
+const SESSION_COOKIE = "fluttr_session";
+const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7;
 
 db.serialize(() => {
     db.run(`
@@ -31,6 +40,48 @@ db.serialize(() => {
         )
     `);
 
+    db.run(`
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL,
+            password_salt TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        )
+    `);
+
+    db.run(`
+        CREATE TABLE IF NOT EXISTS sessions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            token TEXT NOT NULL UNIQUE,
+            created_at TEXT NOT NULL,
+            expires_at TEXT NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+    `);
+
+    db.get(`SELECT id FROM users WHERE email = ?`, [DEMO_USER.email], (err, row) => {
+        if (err) {
+            console.error("Error checking demo user", err);
+            return;
+        }
+        if (row) {
+            return;
+        }
+
+        const salt = crypto.randomBytes(16).toString("hex");
+        const passwordHash = hashPassword(DEMO_USER.password, salt);
+        const createdAt = new Date().toISOString();
+
+        db.run(
+            `INSERT INTO users (name, email, password_hash, password_salt, created_at)
+             VALUES (?, ?, ?, ?, ?)`,
+            [DEMO_USER.name, DEMO_USER.email, passwordHash, salt, createdAt]
+        );
+    });
+
     db.run(`ALTER TABLE butterflies ADD COLUMN tribe TEXT`, () => {});
     db.run(`ALTER TABLE butterflies ADD COLUMN genus TEXT`, () => {});
     db.run(`ALTER TABLE butterflies ADD COLUMN location TEXT`, () => {});
@@ -39,8 +90,18 @@ db.serialize(() => {
     db.run(`ALTER TABLE butterflies ADD COLUMN colouring TEXT`, () => {});
 
     const seed = `
-        INSERT OR IGNORE INTO butterflies (common_name, scientific_name, family, tribe, genus, location, size, food_plant, colouring, image)
+        INSERT INTO butterflies (common_name, scientific_name, family, tribe, genus, location, size, food_plant, colouring, image)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(common_name) DO UPDATE SET
+            scientific_name = excluded.scientific_name,
+            family = excluded.family,
+            tribe = excluded.tribe,
+            genus = excluded.genus,
+            location = excluded.location,
+            size = excluded.size,
+            food_plant = excluded.food_plant,
+            colouring = excluded.colouring,
+            image = excluded.image
     `;
 
     const rows = [
@@ -53,7 +114,7 @@ db.serialize(() => {
             "Queensland (Wet Tropics)",
             "Large",
             "Citrus species",
-            "Electric blue",
+            "Black, Blue",
             "/images/ulysses.jpg"
         ],
         [
@@ -65,7 +126,7 @@ db.serialize(() => {
             "Queensland (Wet Tropics)",
             "Very large",
             "Pararistolochia praevenosa",
-            "Green and black",
+            "Black, Green",
             "/images/cairns-birdwing.jpg"
         ],
         [
@@ -77,7 +138,7 @@ db.serialize(() => {
             "Northern Australia",
             "Medium",
             "Tylophora species",
-            "Blue and black",
+            "Black, Blue",
             "/images/blue-tiger.jpg"
         ],
         [
@@ -87,9 +148,9 @@ db.serialize(() => {
             "Leptocircini",
             "Protographium",
             "Australia",
-            null,
-            null,
-            null,
+            "Medium",
+            "Melodorum species",
+            "Black, White",
             "/images/Four-barred swordtail.jpg"
         ],
         [
@@ -99,9 +160,9 @@ db.serialize(() => {
             "Leptocircini",
             "Graphium",
             "Australia",
-            null,
-            null,
-            null,
+            "Medium",
+            "Annona species",
+            "Black, Green",
             "/images/Five-barred or chain swordtail.jpg"
         ],
         [
@@ -111,9 +172,9 @@ db.serialize(() => {
             "Leptocircini",
             "Graphium",
             "Australia",
-            null,
-            null,
-            null,
+            "Medium",
+            "Cryptocarya species",
+            "Black, Green",
             "/images/Macleay's swordtail.jpg"
         ],
         [
@@ -123,9 +184,9 @@ db.serialize(() => {
             "Leptocircini",
             "Graphium",
             "Australia",
-            null,
-            null,
-            null,
+            "Medium",
+            "Cinnamomum species",
+            "Black, Blue",
             "/images/Blue triangle.jpg"
         ],
         [
@@ -135,9 +196,9 @@ db.serialize(() => {
             "Leptocircini",
             "Graphium",
             "Australia",
-            null,
-            null,
-            null,
+            "Medium",
+            "Annona species",
+            "Black, Green",
             "/images/Pale triangle.jpg"
         ],
         [
@@ -147,9 +208,9 @@ db.serialize(() => {
             "Leptocircini",
             "Graphium",
             "Australia",
-            null,
-            null,
-            null,
+            "Medium",
+            "Cryptocarya species",
+            "Black, Green",
             "/images/Green triangle.jpg"
         ],
         [
@@ -159,9 +220,9 @@ db.serialize(() => {
             "Leptocircini",
             "Graphium",
             "Australia",
-            null,
-            null,
-            null,
+            "Medium",
+            "Annona species",
+            "Black, Green",
             "/images/Green-spotted triangle.jpg"
         ],
         [
@@ -171,9 +232,9 @@ db.serialize(() => {
             "Papilionini",
             "Papilio",
             "Australia",
-            null,
-            null,
-            null,
+            "Medium",
+            "Citrus species",
+            "Black, Yellow",
             "/images/Dainty swallowtail.jpg"
         ],
         [
@@ -183,9 +244,9 @@ db.serialize(() => {
             "Papilionini",
             "Papilio",
             "Australia",
-            null,
-            null,
-            null,
+            "Large",
+            "Citrus species",
+            "Black, White",
             "/images/Orchard swallowtail.jpg"
         ],
         [
@@ -195,9 +256,9 @@ db.serialize(() => {
             "Papilionini",
             "Papilio",
             "Australia",
-            null,
-            null,
-            null,
+            "Large",
+            "Citrus species",
+            "Black, White",
             "/images/Ambrax swallowtail.jpg"
         ],
         [
@@ -207,9 +268,9 @@ db.serialize(() => {
             "Papilionini",
             "Papilio",
             "Australia",
-            null,
-            null,
-            null,
+            "Large",
+            "Citrus species",
+            "Black, White",
             "/images/Fuscus swallowtail.jpg"
         ],
         [
@@ -219,9 +280,9 @@ db.serialize(() => {
             "Papilionini",
             "Papilio",
             "Australia",
-            null,
-            null,
-            null,
+            "Large",
+            "Citrus species",
+            "Black, Yellow, Red",
             "/images/Chequered swallowtail.jpg"
         ],
         [
@@ -231,9 +292,9 @@ db.serialize(() => {
             "Troidini",
             "Cressida",
             "Australia",
-            null,
-            null,
-            null,
+            "Medium",
+            "Aristolochia species",
+            "Black, White",
             "/images/Clearwing swallowtail.jpg"
         ],
         [
@@ -243,9 +304,9 @@ db.serialize(() => {
             "Troidini",
             "Ornithoptera",
             "Australia",
-            null,
-            null,
-            null,
+            "Very large",
+            "Pararistolochia praevenosa",
+            "Black, Green",
             "/images/Richmond birdwing.jpg"
         ],
         [
@@ -255,9 +316,9 @@ db.serialize(() => {
             "Troidini",
             "Ornithoptera",
             "Australia",
-            null,
-            null,
-            null,
+            "Very large",
+            "Aristolochia species",
+            "Black, Green",
             "/images/New Guinea or common green birdwing.jpg"
         ],
         [
@@ -267,9 +328,9 @@ db.serialize(() => {
             "Troidini",
             "Pachliopta",
             "Australia",
-            null,
-            null,
-            null,
+            "Large",
+            "Aristolochia species",
+            "Black, Red",
             "/images/Red-bodied swallowtail.jpg"
         ],
         [
@@ -279,9 +340,9 @@ db.serialize(() => {
             "Elodinini",
             "Elodina",
             "Australia",
-            null,
-            null,
-            null,
+            "Small",
+            "Capparis species",
+            "White",
             "/images/Southern pearl-white.jpg"
         ],
         [
@@ -291,9 +352,9 @@ db.serialize(() => {
             "Leptosiaini",
             "Leptosia",
             "Australia",
-            null,
-            null,
-            null,
+            "Small",
+            "Capparis species",
+            "White, Black",
             "/images/Black-spotted white.jpg"
         ],
         [
@@ -303,9 +364,9 @@ db.serialize(() => {
             "Pierini",
             "Appias",
             "Australia",
-            null,
-            null,
-            null,
+            "Medium",
+            "Drypetes species",
+            "White, Black",
             "/images/White or common albatross.jpg"
         ],
         [
@@ -315,9 +376,9 @@ db.serialize(() => {
             "Pierini",
             "Belenois",
             "Australia",
-            null,
-            null,
-            null,
+            "Medium",
+            "Capparis species",
+            "White, Black",
             "/images/Caper white.jpg"
         ],
         [
@@ -327,9 +388,9 @@ db.serialize(() => {
             "Pierini",
             "Delias",
             "Australia",
-            null,
-            null,
-            null,
+            "Medium",
+            "Amyema species",
+            "Black, White, Red",
             "/images/Scarlet Jezebel.jpg"
         ],
         [
@@ -339,9 +400,9 @@ db.serialize(() => {
             "Pierini",
             "Delias",
             "Australia",
-            null,
-            null,
-            null,
+            "Medium",
+            "Amyema species",
+            "Black, White, Red",
             "/images/Red-banded Jezebel.jpg"
         ],
         [
@@ -351,18 +412,437 @@ db.serialize(() => {
             "Coliadinae",
             "Catopsilia",
             "Australia",
-            null,
-            null,
-            null,
+            "Medium",
+            "Senna species",
+            "Yellow",
             "/images/Lemon migrant.jpg"
+        ],
+        [
+            "White migrant",
+            "Catopsilia pyranthe",
+            "Pieridae",
+            "Coliadinae",
+            "Catopsilia",
+            "Northern Australia",
+            "Medium",
+            "Senna species",
+            "White",
+            "/images/White migrant.jpg"
+        ],
+        [
+            "Orange migrant",
+            "Catopsilia scylla",
+            "Pieridae",
+            "Coliadinae",
+            "Catopsilia",
+            "Northern Australia",
+            "Medium",
+            "Senna species",
+            "Orange, Yellow",
+            "/images/Orange migrant.jpg"
+        ],
+        [
+            "Yellow migrant",
+            "Catopsilia gorgophone",
+            "Pieridae",
+            "Coliadinae",
+            "Catopsilia",
+            "Northern Australia",
+            "Medium",
+            "Senna species",
+            "Yellow",
+            "/images/Yellow migrant.jpg"
+        ],
+        [
+            "No-brand grass-yellow",
+            "Eurema brigitta",
+            "Pieridae",
+            "Coliadinae",
+            "Eurema",
+            "Australia",
+            "Small",
+            "Fabaceae species",
+            "Yellow, Black",
+            "/images/No-brand grass-yellow.jpg"
+        ],
+        [
+            "Lined grass-yellow",
+            "Eurema laeta",
+            "Pieridae",
+            "Coliadinae",
+            "Eurema",
+            "Northern Australia",
+            "Small",
+            "Fabaceae species",
+            "Yellow, Black",
+            "/images/Lined grass-yellow.jpg"
+        ],
+        [
+            "Pink grass-yellow",
+            "Eurema herla",
+            "Pieridae",
+            "Coliadinae",
+            "Eurema",
+            "Australia",
+            "Small",
+            "Fabaceae species",
+            "Yellow, Pink",
+            "/images/Pink grass-yellow.jpg"
+        ],
+        [
+            "Small grass-yellow",
+            "Eurema smilax",
+            "Pieridae",
+            "Coliadinae",
+            "Eurema",
+            "Australia",
+            "Small",
+            "Fabaceae species",
+            "Yellow",
+            "/images/Small grass-yellow.jpg"
+        ],
+        [
+            "Broad-margined grass-yellow",
+            "Eurema puella",
+            "Pieridae",
+            "Coliadinae",
+            "Eurema",
+            "Northern Australia",
+            "Small",
+            "Fabaceae species",
+            "Yellow, Black",
+            "/images/Broad-margined grass-yellow.jpg"
+        ],
+        [
+            "Scalloped grass-yellow",
+            "Eurema alitha",
+            "Pieridae",
+            "Coliadinae",
+            "Eurema",
+            "Northern Australia",
+            "Small",
+            "Fabaceae species",
+            "Yellow",
+            "/images/Scalloped grass-yellow.jpg"
+        ],
+        [
+            "Large grass-yellow",
+            "Eurema hecabe",
+            "Pieridae",
+            "Coliadinae",
+            "Eurema",
+            "Australia",
+            "Small",
+            "Fabaceae species",
+            "Yellow",
+            "/images/Large grass-yellow.jpg"
+        ],
+        [
+            "Three-spot grass-yellow",
+            "Eurema blanda",
+            "Pieridae",
+            "Coliadinae",
+            "Eurema",
+            "Christmas Island, Torres Strait",
+            "Small",
+            "Fabaceae species",
+            "Yellow, Black",
+            "/images/Three-spot grass-yellow.jpg"
+        ],
+        [
+            "Harlequin metalmark",
+            "Praetaxila segecia",
+            "Riodinidae",
+            "Nemeobiinae",
+            "Praetaxila",
+            "Northern Australia",
+            "Small",
+            "Parasitic on leaf insects",
+            "Black, Orange, White",
+            "/images/Harlequin metalmark.jpg"
+        ],
+        [
+            "Moth butterfly",
+            "Liphyra brassolis",
+            "Lycaenidae",
+            "Miletinae",
+            "Liphyra",
+            "Northern Australia",
+            "Medium",
+            "Ant brood",
+            "Brown",
+            "/images/Moth butterfly.jpg"
+        ],
+        [
+            "Chequered copper",
+            "Lucia limbaria",
+            "Lycaenidae",
+            "Theclinae",
+            "Lucia",
+            "Australia",
+            "Small",
+            "Cassytha species",
+            "Brown, Orange",
+            "/images/Chequered copper.jpg"
+        ],
+        [
+            "Bright copper",
+            "Paralucia aurifera",
+            "Lycaenidae",
+            "Theclinae",
+            "Paralucia",
+            "Australia",
+            "Small",
+            "Bursaria species",
+            "Brown, Orange",
+            "/images/Bright copper.jpg"
+        ],
+        [
+            "Fiery copper",
+            "Paralucia pyrodiscus",
+            "Lycaenidae",
+            "Theclinae",
+            "Paralucia",
+            "Australia",
+            "Small",
+            "Bursaria species",
+            "Orange, Brown",
+            "/images/Fiery copper.jpg"
+        ],
+        [
+            "Purple copper",
+            "Paralucia spinifera",
+            "Lycaenidae",
+            "Theclinae",
+            "Paralucia",
+            "Australia",
+            "Small",
+            "Bursaria spinosa",
+            "Purple, Brown",
+            "/images/Purple copper.jpg"
+        ],
+        [
+            "Bright forest-blue",
+            "Pseudodipsas cephenes",
+            "Lycaenidae",
+            "Theclinae",
+            "Pseudodipsas",
+            "Northern Australia",
+            "Small",
+            "Acacia species",
+            "Blue, Brown",
+            "/images/Bright forest-blue.jpg"
+        ],
+        [
+            "Dark forest-blue",
+            "Pseudodipsas eone",
+            "Lycaenidae",
+            "Theclinae",
+            "Pseudodipsas",
+            "Northern Australia",
+            "Small",
+            "Acacia species",
+            "Blue, Brown",
+            "/images/Dark forest-blue.jpg"
+        ],
+        [
+            "Black-veined ant-blue",
+            "Acrodipsas arcana",
+            "Lycaenidae",
+            "Theclinae",
+            "Acrodipsas",
+            "Australia",
+            "Small",
+            "Ant larvae",
+            "Brown, Black",
+            "/images/Black-veined ant-blue.jpg"
+        ],
+        [
+            "Golden ant-blue",
+            "Acrodipsas aurata",
+            "Lycaenidae",
+            "Theclinae",
+            "Acrodipsas",
+            "Australia",
+            "Small",
+            "Ant larvae",
+            "Brown, Gold",
+            "/images/Golden ant-blue.jpg"
+        ],
+        [
+            "Bronze ant-blue",
+            "Acrodipsas brisbanensis",
+            "Lycaenidae",
+            "Theclinae",
+            "Acrodipsas",
+            "Australia",
+            "Small",
+            "Ant larvae",
+            "Brown, Bronze",
+            "/images/Bronze ant-blue.jpg"
+        ],
+        [
+            "Copper ant-blue",
+            "Acrodipsas cuprea",
+            "Lycaenidae",
+            "Theclinae",
+            "Acrodipsas",
+            "Australia",
+            "Small",
+            "Ant larvae",
+            "Brown, Copper",
+            "/images/Copper ant-blue.jpg"
+        ],
+        [
+            "Decima ant-blue",
+            "Acrodipsas decima",
+            "Lycaenidae",
+            "Theclinae",
+            "Acrodipsas",
+            "Australia",
+            "Small",
+            "Ant larvae",
+            "Brown",
+            "/images/Decima ant-blue.jpg"
+        ],
+        [
+            "Black ant-blue",
+            "Acrodipsas hirtipes",
+            "Lycaenidae",
+            "Theclinae",
+            "Acrodipsas",
+            "Australia",
+            "Small",
+            "Ant larvae",
+            "Brown, Black",
+            "/images/Black ant-blue.jpg"
+        ],
+        [
+            "Illidge's ant-blue",
+            "Acrodipsas illidgei",
+            "Lycaenidae",
+            "Theclinae",
+            "Acrodipsas",
+            "Australia",
+            "Small",
+            "Ant larvae",
+            "Brown, Grey",
+            "/images/Illidge's ant blue.jpg"
+        ],
+        [
+            "Grey ant-blue",
+            "Acrodipsas melania",
+            "Lycaenidae",
+            "Theclinae",
+            "Acrodipsas",
+            "Australia",
+            "Small",
+            "Ant larvae",
+            "Grey, Brown",
+            "/images/Grey ant-blue.jpg"
+        ],
+        [
+            "Brown ant-blue",
+            "Acrodipsas mortoni",
+            "Lycaenidae",
+            "Theclinae",
+            "Acrodipsas",
+            "Australia",
+            "Small",
+            "Ant larvae",
+            "Brown",
+            "/images/Brown ant-blue.jpg"
+        ],
+        [
+            "Small ant-blue",
+            "Acrodipsas myrmecophila",
+            "Lycaenidae",
+            "Theclinae",
+            "Acrodipsas",
+            "Australia",
+            "Small",
+            "Ant larvae",
+            "Brown",
+            "/images/Small ant-blue.jpg"
+        ],
+        [
+            "Copper jewel",
+            "Hypochrysops apelles",
+            "Lycaenidae",
+            "Theclinae",
+            "Hypochrysops",
+            "Australia",
+            "Small",
+            "Mistletoe species",
+            "Brown, Copper",
+            "/images/Copper jewel.jpg"
+        ],
+        [
+            "Apollo jewel",
+            "Hypochrysops apollo",
+            "Lycaenidae",
+            "Theclinae",
+            "Hypochrysops",
+            "Australia",
+            "Small",
+            "Mistletoe species",
+            "Blue, Brown",
+            "/images/Apollo jewel.jpg"
+        ],
+        [
+            "Yellow jewel",
+            "Hypochrysops byzos",
+            "Lycaenidae",
+            "Theclinae",
+            "Hypochrysops",
+            "Australia",
+            "Small",
+            "Mistletoe species",
+            "Yellow, Brown",
+            "/images/Yellow jewel.jpg"
+        ],
+        [
+            "Mangrove jewel",
+            "Hypochrysops epicurus",
+            "Lycaenidae",
+            "Theclinae",
+            "Hypochrysops",
+            "Australia",
+            "Small",
+            "Mistletoe species",
+            "Blue, Brown",
+            "/images/Mangrove jewel.jpg"
+        ],
+        [
+            "Turquoise jewel",
+            "Hypochrysops halyaetus",
+            "Lycaenidae",
+            "Theclinae",
+            "Hypochrysops",
+            "Australia",
+            "Small",
+            "Mistletoe species",
+            "Blue, Turquoise",
+            "/images/Turquoise jewel.jpg"
+        ],
+        [
+            "Narcissus jewel",
+            "Hypochrysops narcissus",
+            "Lycaenidae",
+            "Theclinae",
+            "Hypochrysops",
+            "Australia",
+            "Small",
+            "Mistletoe species",
+            "Blue, Brown",
+            "/images/Narcissus jewel.jpg"
         ]
+
+
     ];
 
     rows.forEach((row) => {
         db.run(seed, row);
-        if (row[9]) {
-            db.run(`UPDATE butterflies SET image = ? WHERE common_name = ?`, [row[9], row[0]]);
-        }
     });
 });
 
@@ -382,16 +862,53 @@ function getDistinctValues(column) {
     });
 }
 
+function getMissingCount(column) {
+    return new Promise((resolve, reject) => {
+        db.get(
+            `SELECT COUNT(*) AS count FROM butterflies WHERE ${column} IS NULL OR ${column} = ''`,
+            [],
+            (err, row) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(row.count || 0);
+            }
+        );
+    });
+}
+
+async function getFilterValues(column) {
+    const [values, missingCount] = await Promise.all([
+        getDistinctValues(column),
+        getMissingCount(column)
+    ]);
+    const items = values.map((value) => ({ value, label: value }));
+    if (missingCount > 0) {
+        items.push({ value: NULL_FILTER_VALUE, label: NULL_FILTER_LABEL });
+    }
+    return items;
+}
+
+async function getColouringValues() {
+    const missingCount = await getMissingCount("colouring");
+    const items = COLOUR_VALUES.map((value) => ({ value, label: value }));
+    if (missingCount > 0) {
+        items.push({ value: NULL_FILTER_VALUE, label: NULL_FILTER_LABEL });
+    }
+    return items;
+}
+
 app.get("/api/filters", async (req, res) => {
     try {
         const [family, tribe, genus, location, size, food_plant, colouring] = await Promise.all([
-            getDistinctValues("family"),
-            getDistinctValues("tribe"),
-            getDistinctValues("genus"),
-            getDistinctValues("location"),
-            getDistinctValues("size"),
-            getDistinctValues("food_plant"),
-            getDistinctValues("colouring")
+            getFilterValues("family"),
+            getFilterValues("tribe"),
+            getFilterValues("genus"),
+            getFilterValues("location"),
+            getFilterValues("size"),
+            getFilterValues("food_plant"),
+            getColouringValues()
         ]);
 
         res.json({ family, tribe, genus, location, size, food_plant, colouring });
@@ -432,10 +949,45 @@ app.get("/api/butterflies", (req, res) => {
     }
 
     Object.entries(filters).forEach(([key, value]) => {
-        if (value) {
-            conditions.push(`${key} = ?`);
-            params.push(value);
+        const values = Array.isArray(value) ? value : (value ? [value] : []);
+        if (!values.length) {
+            return;
         }
+
+        const hasMissing = values.includes(NULL_FILTER_VALUE);
+        const realValues = values.filter((item) => item !== NULL_FILTER_VALUE);
+
+        const isColouring = key === "colouring";
+
+        if (hasMissing && realValues.length) {
+            if (isColouring) {
+                const likeClauses = realValues.map(() => `${key} LIKE ?`).join(" OR ");
+                conditions.push(`((${likeClauses}) OR ${key} IS NULL OR ${key} = '')`);
+                params.push(...realValues.map((value) => `%${value}%`));
+                return;
+            }
+
+            const placeholders = realValues.map(() => "?").join(", ");
+            conditions.push(`(${key} IN (${placeholders}) OR ${key} IS NULL OR ${key} = '')`);
+            params.push(...realValues);
+            return;
+        }
+
+        if (hasMissing) {
+            conditions.push(`(${key} IS NULL OR ${key} = '')`);
+            return;
+        }
+
+        if (isColouring) {
+            const likeClauses = realValues.map(() => `${key} LIKE ?`).join(" OR ");
+            conditions.push(`(${likeClauses})`);
+            params.push(...realValues.map((value) => `%${value}%`));
+            return;
+        }
+
+        const placeholders = realValues.map(() => "?").join(", ");
+        conditions.push(`${key} IN (${placeholders})`);
+        params.push(...realValues);
     });
 
     const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
@@ -481,17 +1033,255 @@ app.post("/api/signin", (req, res) => {
         return;
     }
 
-    if (email === DEMO_USER.email && password === DEMO_USER.password) {
-        res.json({ user: { email: DEMO_USER.email, name: DEMO_USER.name } });
+    if (!isValidEmail(email)) {
+        res.status(400).json({ error: "Please enter a valid email address." });
         return;
     }
 
-    res.status(401).json({ error: "Invalid email or password." });
+    db.get(
+        `SELECT id, name, email, password_hash, password_salt FROM users WHERE email = ?`,
+        [email],
+        (err, row) => {
+            if (err) {
+                res.status(500).json({ error: "Database error." });
+                return;
+            }
+
+            if (!row) {
+                res.status(401).json({ error: "Invalid email or password." });
+                return;
+            }
+
+            const expectedHash = hashPassword(password, row.password_salt);
+            if (!timingSafeEqual(expectedHash, row.password_hash)) {
+                res.status(401).json({ error: "Invalid email or password." });
+                return;
+            }
+
+            createSession(row.id, (sessionErr, session) => {
+                if (sessionErr) {
+                    res.status(500).json({ error: "Could not create session." });
+                    return;
+                }
+
+                setSessionCookie(res, session.token, session.expiresAt);
+                res.json({ user: { email: row.email, name: row.name } });
+            });
+        }
+    );
+});
+
+app.post("/api/signup", (req, res) => {
+    const name = sanitizeName(String(req.body.name || ""));
+    const email = String(req.body.email || "").trim().toLowerCase();
+    const password = String(req.body.password || "");
+
+    if (!name || !email || !password) {
+        res.status(400).json({ error: "Name, email, and password are required." });
+        return;
+    }
+
+    if (!isValidEmail(email)) {
+        res.status(400).json({ error: "Please enter a valid email address." });
+        return;
+    }
+
+    const passwordIssues = getPasswordIssues(password);
+    if (passwordIssues.length) {
+        res.status(400).json({ error: passwordIssues[0] });
+        return;
+    }
+
+    db.get(`SELECT id FROM users WHERE email = ?`, [email], (err, row) => {
+        if (err) {
+            res.status(500).json({ error: "Database error." });
+            return;
+        }
+
+        if (row) {
+            res.status(409).json({ error: "An account with that email already exists." });
+            return;
+        }
+
+        const salt = crypto.randomBytes(16).toString("hex");
+        const passwordHash = hashPassword(password, salt);
+        const createdAt = new Date().toISOString();
+
+        db.run(
+            `INSERT INTO users (name, email, password_hash, password_salt, created_at)
+             VALUES (?, ?, ?, ?, ?)`,
+            [name, email, passwordHash, salt, createdAt],
+            function insertHandler(insertErr) {
+                if (insertErr) {
+                    res.status(500).json({ error: "Could not create account." });
+                    return;
+                }
+
+                const userId = this.lastID;
+                createSession(userId, (sessionErr, session) => {
+                    if (sessionErr) {
+                        res.status(500).json({ error: "Could not create session." });
+                        return;
+                    }
+                    setSessionCookie(res, session.token, session.expiresAt);
+                    res.status(201).json({ user: { email, name } });
+                });
+            }
+        );
+    });
+});
+
+app.get("/api/me", (req, res) => {
+    getSessionUser(req, (err, user) => {
+        if (err) {
+            res.status(500).json({ error: "Database error." });
+            return;
+        }
+        if (!user) {
+            res.json({ user: null });
+            return;
+        }
+        res.json({ user: { email: user.email, name: user.name } });
+    });
 });
 
 app.post("/api/signout", (req, res) => {
-    res.json({ ok: true });
+    const token = getSessionToken(req);
+    if (!token) {
+        clearSessionCookie(res);
+        res.json({ ok: true });
+        return;
+    }
+
+    db.run(`DELETE FROM sessions WHERE token = ?`, [token], () => {
+        clearSessionCookie(res);
+        res.json({ ok: true });
+    });
 });
+
+function hashPassword(password, salt) {
+    return crypto
+        .pbkdf2Sync(password, salt, PASSWORD_ITERATIONS, PASSWORD_KEYLEN, PASSWORD_DIGEST)
+        .toString("hex");
+}
+
+function timingSafeEqual(a, b) {
+    const aBuf = Buffer.from(a, "hex");
+    const bBuf = Buffer.from(b, "hex");
+    if (aBuf.length !== bBuf.length) {
+        return false;
+    }
+    return crypto.timingSafeEqual(aBuf, bBuf);
+}
+
+function sanitizeName(value) {
+    return String(value || "")
+        .replace(/[<>]/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 80);
+}
+
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function getPasswordIssues(password) {
+    const issues = [];
+    if (password.length < 8) {
+        issues.push("Password must be at least 8 characters.");
+    }
+    if (!/[a-z]/.test(password)) {
+        issues.push("Password must include a lowercase letter.");
+    }
+    if (!/[A-Z]/.test(password)) {
+        issues.push("Password must include an uppercase letter.");
+    }
+    if (!/[0-9]/.test(password)) {
+        issues.push("Password must include a number.");
+    }
+    if (!/[^A-Za-z0-9]/.test(password)) {
+        issues.push("Password must include a symbol.");
+    }
+    return issues;
+}
+
+function getSessionToken(req) {
+    const cookieHeader = req.headers.cookie || "";
+    const cookies = cookieHeader.split(";").reduce((acc, item) => {
+        const [key, ...rest] = item.trim().split("=");
+        if (!key) return acc;
+        acc[key] = decodeURIComponent(rest.join("="));
+        return acc;
+    }, {});
+    return cookies[SESSION_COOKIE];
+}
+
+function setSessionCookie(res, token, expiresAt) {
+    res.cookie(SESSION_COOKIE, token, {
+        httpOnly: true,
+        sameSite: "lax",
+        expires: new Date(expiresAt)
+    });
+}
+
+function clearSessionCookie(res) {
+    res.clearCookie(SESSION_COOKIE, { httpOnly: true, sameSite: "lax" });
+}
+
+function createSession(userId, callback) {
+    const token = crypto.randomBytes(32).toString("hex");
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + SESSION_TTL_MS);
+
+    db.run(
+        `INSERT INTO sessions (user_id, token, created_at, expires_at) VALUES (?, ?, ?, ?)`,
+        [userId, token, now.toISOString(), expiresAt.toISOString()],
+        (err) => {
+            if (err) {
+                callback(err);
+                return;
+            }
+            callback(null, { token, expiresAt: expiresAt.toISOString() });
+        }
+    );
+}
+
+function getSessionUser(req, callback) {
+    const token = getSessionToken(req);
+    if (!token) {
+        callback(null, null);
+        return;
+    }
+
+    db.get(
+        `SELECT sessions.token, sessions.expires_at, users.email, users.name
+         FROM sessions
+         JOIN users ON users.id = sessions.user_id
+         WHERE sessions.token = ?`,
+        [token],
+        (err, row) => {
+            if (err) {
+                callback(err);
+                return;
+            }
+            if (!row) {
+                callback(null, null);
+                return;
+            }
+
+            const expiresAt = new Date(row.expires_at);
+            if (Number.isNaN(expiresAt.getTime()) || expiresAt < new Date()) {
+                db.run(`DELETE FROM sessions WHERE token = ?`, [token], () => {
+                    callback(null, null);
+                });
+                return;
+            }
+
+            callback(null, { email: row.email, name: row.name });
+        }
+    );
+}
 
 app.listen(3000,()=>{
     console.log("Server running on http://localhost:3000");

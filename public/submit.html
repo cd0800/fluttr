@@ -54,7 +54,9 @@ input[type=submit]:hover {
     <a href="submit.html">Submit</a>
     <a href="about.html">About</a>
     <a href="accessibility.html">Accessibility</a>
-    <a href="signin.html" class="signin">Sign in</a>
+    <a href="signin.html" class="signin" id="signinLink">Sign in</a>
+    <span class="user-greeting" id="userGreeting" aria-live="polite"></span>
+    <button type="button" class="link-button" id="signoutBtn">Sign out</button>
   </nav>
 </header>
 
@@ -85,6 +87,7 @@ input[type=submit]:hover {
   <p>©2026 FLUTTR. All rights reserved.</p>
 </footer>
 
+<script src="auth.js"></script>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
@@ -95,4 +98,9 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
+
+
+
+
 

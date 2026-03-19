@@ -1,5 +1,6 @@
 const searchBox = document.getElementById("searchBox");
 const results = document.getElementById("results");
+const filtersPanel = document.querySelector(".filters");
 const familyFilter = document.getElementById("familyFilter");
 const tribeFilter = document.getElementById("tribeFilter");
 const genusFilter = document.getElementById("genusFilter");
@@ -28,17 +29,44 @@ async function loadFilters() {
     const data = await response.json();
 
     filterControls.forEach(({ key, el }) => {
+        el.innerHTML = "";
         const values = data[key] || [];
-        values.forEach((value) => {
-            const option = document.createElement("option");
-            option.value = value;
-            option.textContent = value;
-            el.appendChild(option);
+        values.forEach((item, index) => {
+            const value = typeof item === "string" ? item : item.value;
+            const labelText = typeof item === "string" ? item : item.label;
+
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.value = value;
+            checkbox.id = `${key}-${index}`;
+
+            const label = document.createElement("label");
+            label.appendChild(checkbox);
+            label.append(labelText);
+            el.appendChild(label);
         });
     });
 
     searchButterflies();
 }
+
+filtersPanel.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+
+    const group = button.closest(".filter-group");
+    if (!group) return;
+
+    const checkboxes = group.querySelectorAll("input[type='checkbox']");
+    const action = button.dataset.action;
+    const shouldCheck = action === "select-all";
+
+    checkboxes.forEach((checkbox) => {
+        checkbox.checked = shouldCheck;
+    });
+
+    searchButterflies();
+});
 
 async function searchButterflies(){
 
@@ -46,13 +74,11 @@ async function searchButterflies(){
     const params = new URLSearchParams();
 
     if (query) params.set("q", query);
-    if (familyFilter.value) params.set("family", familyFilter.value);
-    if (tribeFilter.value) params.set("tribe", tribeFilter.value);
-    if (genusFilter.value) params.set("genus", genusFilter.value);
-    if (locationFilter.value) params.set("location", locationFilter.value);
-    if (sizeFilter.value) params.set("size", sizeFilter.value);
-    if (foodPlantFilter.value) params.set("food_plant", foodPlantFilter.value);
-    if (colouringFilter.value) params.set("colouring", colouringFilter.value);
+    filterControls.forEach(({ key, el }) => {
+        const selected = Array.from(el.querySelectorAll("input[type='checkbox']:checked"))
+            .map((input) => input.value);
+        selected.forEach((value) => params.append(key, value));
+    });
 
     const response = await fetch(`/api/butterflies?${params.toString()}`);
     const butterflies = await response.json();
